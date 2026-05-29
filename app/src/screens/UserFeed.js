@@ -24,6 +24,7 @@ import { useAuth } from '../lib/AuthContext';
 import { submitFeedback } from '../lib/feedbackService';
 import { db } from '../lib/firebaseConfig';
 import { useTheme } from '../lib/ThemeContext';
+import { useIsFocused } from '@react-navigation/native';
 
 const FILTERS = ['Upcoming', 'Past', 'Cultural', 'Sports', 'Tech', 'Workshop', 'Seminar'];
 
@@ -190,6 +191,9 @@ export default function UserFeed() {
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [currentFeedbackRequest, setCurrentFeedbackRequest] = useState(null);
     const scrollY = useRef(new Animated.Value(0)).current;
+
+    const isFocused = useIsFocused();
+
     //  debounce effect
     // Debounce effect — 300ms delay before dispatching query to filter (#304)
     useEffect(() => {
@@ -248,17 +252,17 @@ export default function UserFeed() {
         setSearchHistory([]);
     };
     useEffect(() => {
-        if (!user) return;
+        if (!user || !isFocused) return;
         const participatingQuery = collection(db, 'users', user.uid, 'participating');
         const unsub = onSnapshot(participatingQuery, snap => {
             setParticipatingIds(snap.docs.map(d => d.id));
         });
         return unsub;
-    }, [user]);
+    }, [user, isFocused]);
 
     // Listen for pending feedback requests
     useEffect(() => {
-        if (!user) return;
+        if (!user || !isFocused) return;
 
         const feedbackQuery = query(
             collection(db, 'feedbackRequests'),
@@ -283,10 +287,10 @@ export default function UserFeed() {
         );
 
         return () => unsubscribe();
-    }, [user]);
+    }, [user, isFocused]);
 
     useEffect(() => {
-        if (!user) {
+        if (!user || !isFocused) {
             setLoading(false);
             return;
         }
@@ -307,11 +311,11 @@ export default function UserFeed() {
                 setLoading(false);
                 setRefreshing(false);
             },
-            [user, activeFilter],
+            error => console.log('Event Listener Error', error),
         );
 
         return () => unsubscribe();
-    }, [role, user]);
+    }, [role, user, isFocused]);
 
     // Recommendation Logic: Views + User History + Freshness
     const getRecommendedEvents = () => {
@@ -442,7 +446,7 @@ export default function UserFeed() {
 
     const displayList = getFilteredEvents();
 
-    const onRefresh = async () => {
+    const onRefresh = useCallback(async () => {
         if (!user) return;
         setRefreshing(true);
         try {
@@ -461,7 +465,7 @@ export default function UserFeed() {
         } finally {
             setRefreshing(false);
         }
-    };
+    }, [user]);
 
     const [pullDistance, setPullDistance] = useState(0);
     const lastPullRef = useRef(0);
