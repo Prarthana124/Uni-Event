@@ -17,7 +17,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901ebb512078596e6fc4b050511d3e5ab4
+        uses: actions/checkout@b4ffde65f46336ab88eb53b808089e92fa98a106
 
       - name: Set up Node.js 20
         uses: actions/setup-node@60edb3dd545a775cdb01d3efedbac2d7e5d13b8e
@@ -33,7 +33,7 @@ jobs:
         run: npm ci
 
       - name: Create Pull Request for dependency updates
-        uses: peter-evans/create-pull-request@70a41aba183996c44cedce9e0aded0624ffb39f7
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0cffcb88ff94e
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: update package-lock.json [skip ci]"
@@ -57,7 +57,7 @@ jobs:
         working-directory: ./app
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901ebb512078596e6fc4b050511d3e5ab4
+        uses: actions/checkout@b4ffde65f46336ab88eb53b808089e92fa98a106
 
       - name: Set up Node.js 20
         uses: actions/setup-node@60edb3dd545a775cdb01d3efedbac2d7e5d13b8e
@@ -74,7 +74,7 @@ jobs:
 
       - name: Create PR for formatted files
         if: github.event_name == 'push'
-        uses: peter-evans/create-pull-request@70a41aba183996c44cedce9e0aded0624ffb39f7
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0cffcb88ff94e
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "style: auto-format with prettier"
