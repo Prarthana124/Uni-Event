@@ -227,6 +227,7 @@ export default function UserFeed() {
         });
     }, []);
 
+    // Persist search history to AsyncStorage (called on submit/blur)
     const persistSearchHistory = useCallback(async raw => {
         const normalized = raw?.trim();
         if (!normalized) return;
@@ -240,6 +241,7 @@ export default function UserFeed() {
         });
     }, []);
 
+    // Clear history handler
     const clearHistory = useCallback(async () => {
         try {
             await AsyncStorage.removeItem('searchHistory');
@@ -302,6 +304,7 @@ export default function UserFeed() {
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     if (data.status === 'suspended') return;
+                    if (data.deletedAt != null) return;
                     list.push({ id: doc.id, ...data });
                 });
                 setEvents(list);
@@ -453,6 +456,7 @@ export default function UserFeed() {
             snapshot.forEach(doc => {
                 const data = doc.data();
                 if (data.status === 'suspended') return;
+                if (data.deletedAt != null) return;
                 list.push({ id: doc.id, ...data });
             });
             setEvents(list);
